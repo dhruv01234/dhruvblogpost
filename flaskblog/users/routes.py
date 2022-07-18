@@ -12,7 +12,7 @@ users = Blueprint('users',__name__)
 @users.route("/register",methods=['GET','POST'])
 def register():
     if current_user.is_authenticated:
-        return redirect(url_for('main.home'))
+        return redirect(url_for('main.index'))
     form = ResgistrationForm()
     if form.validate_on_submit():
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
@@ -22,13 +22,13 @@ def register():
         flash(f'Account created for {form.username.data}','success')
         login_user(user,remember=False)
         next_page = request.args.get('next')
-        return redirect(next_page) if next_page else redirect(url_for('main.home'))
+        return redirect(next_page) if next_page else redirect(url_for('main.index'))
     return render_template('register.html',title='Register',form=form)
 
 @users.route("/login",methods=['GET','POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('main.home'))
+        return redirect(url_for('main.index'))
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
@@ -36,7 +36,7 @@ def login():
             flash('Login Successfully','success')
             login_user(user,remember=form.remember.data)
             next_page = request.args.get('next')
-            return redirect(next_page) if next_page else redirect(url_for('main.home'))
+            return redirect(next_page) if next_page else redirect(url_for('main.index'))
         else:
             flash('Please check email and password','danger')
     return render_template('login.html',title='Login',form=form)
@@ -44,7 +44,7 @@ def login():
 @users.route("/logout")
 def logout():
     logout_user()
-    return redirect(url_for('main.home'))
+    return redirect(url_for('main.index'))
 
 @users.route("/account",methods=['GET','POST'])
 @login_required
@@ -77,7 +77,7 @@ def user_posts(username):
 @users.route("/reset_password",methods=['GET','POST'])
 def reset_request():
     if current_user.is_authenticated:
-        return redirect(url_for('main.home'))
+        return redirect(url_for('main.index'))
     form = ReqResForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
@@ -90,7 +90,7 @@ def reset_request():
 @users.route("/reset_password/<token>",methods=['GET','POST'])
 def reset_token(token):
     if current_user.is_authenticated:
-        return redirect(url_for('main.home'))
+        return redirect(url_for('main.index'))
     user  = User.verify_reset_token(token)
     if user is None:
         flash('Invalid','warning')
